@@ -1,42 +1,33 @@
-
 name: FUT Trader 27 - Market Trends
-
 on:
   push:
-    branches:
-      - fut-trader-27-test
-    paths:
-      - 'market-trends.py'
-      - 'prices.json'
-      - '.github/workflows/market-trends-test.yml'
+    branches: [fut-trader-27-test]
+    paths: ['*.py', 'tests/**', 'config/**', 'prices.json', '.github/workflows/market-trends-test.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   market-trends:
+    if: github.ref == 'refs/heads/fut-trader-27-test'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Scarica il branch di test
-        uses: actions/checkout@v4
-
-      - name: Configura Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+        with:
+          ref: fut-trader-27-test
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Esegui Market Trends
-        run: |
-          python market-trends.py prices.json > results.json
-
-      - name: Verifica risultati
-        run: |
-          python -m json.tool results.json
-          python -c "import json; d=json.load(open('results.json')); assert isinstance(d['results'], list)"
-
-      - name: Salva risultati
-        uses: actions/upload-artifact@v4
+      - run: python -m unittest discover -s tests -v
+      - run: python update-market.py
+      - run: python market-trends.py prices.json > results.json
+      - uses: actions/upload-artifact@v4
         with:
           name: market-trends-results
-          path: results.json
+          path: |
+            results.json
+            data/market-trends.json
+# No schedule/write permission until a production source is verified.
+# GitHub scheduled workflows run only from the default branch: do not move this
+# to main. Future isolated collection requires an approved external dispatcher
+# targeting fut-trader-27-test every 30 minutes, or a separate test repository.

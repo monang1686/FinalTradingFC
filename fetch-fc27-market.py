@@ -73,6 +73,8 @@ def main():
     p.add_argument('--output', type=Path, default=Path('fc27-market-snapshot.json'))
     p.add_argument('--max-age-minutes', type=int, default=120)
     args = p.parse_args()
+    if args.output.resolve() == Path('prices.json').resolve():
+        p.error('research snapshots must never overwrite prices.json')
     if args.max_age_minutes < 1:
         p.error('--max-age-minutes must be positive')
     payload = json.loads(args.input.read_text(encoding='utf-8')) if args.input else fetch()

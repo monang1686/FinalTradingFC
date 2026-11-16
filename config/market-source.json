@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "verified": false,
+  "id": null,
+  "endpoint": null,
+  "permission_url": null,
+  "provenance_url": null,
+  "verified_at": null,
+  "block_reason": "No production source verified for FC27 shared console market; no authenticated production access available."
+}

@@ -52,7 +52,7 @@ def import_csv(csv_path, json_path, source):
                 raise ValueError(f'Invalid CSV row {line}: {e}') from e
     for card in cards.values():
         card['history'] = sorted(card['history'], key=lambda x: x['timestamp'])[-288:]
-    existing.update(version=1, source=source, updated_at=datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'), players=sorted(cards.values(), key=lambda p: (p['id'], p['platform'])))
+    existing.update(version=1, verified=False, source=source, updated_at=datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'), players=sorted(cards.values(), key=lambda p: (p['id'], p['platform'])))
     # Write only after complete validation.
     temp = json_path.with_suffix(json_path.suffix + '.tmp')
     temp.write_text(json.dumps(existing, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
