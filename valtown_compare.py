@@ -9,6 +9,7 @@ import time
 import urllib.request
 from datetime import datetime, timezone
 from valtown_adapter import inspect
+from market_engine import stamp
 
 URL = "https://fc27-market.val.run/latest"
 MAX_BYTES = 4_000_000
@@ -27,7 +28,7 @@ def fetch():
         raise ValueError("oversized response")
     payload = json.loads(raw)
     quality = inspect(payload)
-    if quality["invalid_prices"] or quality["missing_ids"] or quality["duplicate_pairs"]:
+    if quality["invalid_prices"] or quality["missing_ids"] or quality["duplicate_pairs"] or quality["duplicate_ea_ids"] or quality["invalid_ea_ids"]:
         raise ValueError("feed quality failed")
     return payload, quality
 
@@ -38,7 +39,7 @@ def rows(payload):
         for card in cards
     }
 
-def compare(first, second, q1, q2):
+def compare(first, second, q1, q2, interval_seconds=None):
     a, b = rows(first), rows(second)
     shared = a.keys() & b.keys()
     changed = sum(a[k] != b[k] for k in shared)
@@ -52,17 +53,20 @@ def compare(first, second, q1, q2):
         "removed_cards": len(a.keys() - b.keys()),
         "price_changes": changed,
         "unchanged_prices": len(shared) - changed,
-        "feed_timestamp_advanced": q2["updated"] != q1["updated"],
-        "observation_interval_seconds": DELAY_SECONDS,
+        "feed_timestamp_advanced": stamp(q2["updated"]) > stamp(q1["updated"]),
+        "feed_timestamp_regressed": stamp(q2["updated"]) < stamp(q1["updated"]),
+        "observation_interval_seconds": interval_seconds,
+        "conclusion": "Two samples cannot establish update frequency or accuracy",
         "data_reuse_authorized": False,
         "collection_enabled": False,
     }
 
 def main():
+    started = time.monotonic()
     first, q1 = fetch()
     time.sleep(DELAY_SECONDS)
     second, q2 = fetch()
-    print(json.dumps(compare(first, second, q1, q2), indent=2))
+    print(json.dumps(compare(first, second, q1, q2, time.monotonic()-started), indent=2))
     return 0
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ MAX_BYTES = 4_000_000
 
 def main():
     report = {"endpoint": URL, "checked_at": datetime.now(timezone.utc).isoformat(),
-              "reachable": False, "json_valid": False, "data_reuse_authorized": False,
+              "reachable": False, "json_valid": False, "schema_valid": False, "data_reuse_authorized": False,
               "production_ingestion_enabled": False}
     try:
         req = urllib.request.Request(URL, headers={"User-Agent": "FUTTrader27-Diagnostic/1.0", "Accept": "application/json"})
@@ -31,6 +31,7 @@ def main():
         report["json_valid"] = True
         from valtown_adapter import inspect
         report["adapter_quality"] = inspect(data)
+        report["schema_valid"] = True
         # Structural inspection only; never log raw card records or values.
         if isinstance(data, dict) and isinstance(data.get("groups"), (dict, list)):
             groups = data["groups"]
@@ -98,9 +99,9 @@ def main():
                 report["array_item_keys"] = sorted(str(k) for k in data[0].keys())[:40]
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
         report["error_type"] = type(exc).__name__
-        report["error"] = str(exc)[:180]
+        report["schema_valid"] = False
     print(json.dumps(report, indent=2, ensure_ascii=False))
-    return 0 if report["json_valid"] else 1
+    return 0 if report["schema_valid"] else 1
 
 if __name__ == "__main__":
     sys.exit(main())
