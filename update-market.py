@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Disabled until a source-specific authorized adapter is reviewed and implemented."""
+"""Market Trends 2.0: writes only isolated experimental state."""
 import json
 from pathlib import Path
-from market_engine import atomic, report
+from market_engine import atomic
+from market_pipeline import run
 
-if __name__ == '__main__':
-    config = json.loads(Path('config/market-source.json').read_text())
-    # A boolean configuration change must never silently activate an unverified endpoint.
-    if config.get('enabled'):
-        raise SystemExit('BLOCKED: no verified production adapter implemented; see docs/market-trends.md')
-    data = json.loads(Path('prices.json').read_text())
-    atomic('data/market-trends.json', report(data))
-    print('BLOCKED: no verified source; prices.json and history unchanged')
+if __name__=='__main__':
+    config=json.loads(Path('config/market-sources.json').read_text())
+    target=Path('experimental/market-state.json')
+    previous=json.loads(target.read_text()) if target.exists() else None
+    state=run(config,previous)
+    atomic(target,state)
+    print(state['status']+': '+str(state['fresh_unique_cards'])+' fresh cards; public prices.json unchanged')

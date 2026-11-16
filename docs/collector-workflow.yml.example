@@ -1,0 +1,47 @@
+# INACTIVE TEMPLATE. Install only in a separate PUBLIC collector repository's
+# default branch after a free source has been authorized and production-tested.
+# Standard Linux runners are free for public repositories; no billing guarantee
+# is made for private repositories. Requires a narrowly scoped test-branch token.
+name: Isolated Market Trends collector
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fut27-test-collector
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: vars.AUTHORIZED_FREE_SOURCE_READY == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: monang1686/FinalTradingFC
+          ref: fut-trader-27-test
+          token: ${{ secrets.TEST_BRANCH_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - run: python update-market.py
+      - name: Persist isolated successful observations only
+        run: |
+          test "$(git branch --show-current)" = fut-trader-27-test
+          python -c "import json; s=json.load(open('experimental/market-state.json')); assert s['status']=='ok'"
+          python -c "import json; c=json.load(open('config/market-sources.json')); enabled=[s for s in c['sources'] if s.get('enabled')]; assert enabled and all(s.get('public_redistribution_allowed') is True for s in enabled), 'public redistribution rights required'"
+          git config user.name 'Market Trends collector'
+          git config user.email 'market-trends@users.noreply.github.com'
+          git add experimental/market-state.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update experimental authorized market observations'
+            git push origin HEAD:refs/heads/fut-trader-27-test
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experimental-market-state
+          path: experimental/market-state.json

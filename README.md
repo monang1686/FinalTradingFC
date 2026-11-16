@@ -20,3 +20,15 @@ Non è attivo alcun aggiornamento ogni 30 minuti: GitHub esegue i cron dal branc
 predefinito; attivarli su main violerebbe l'isolamento richiesto.
 
 Analisi fonti, contratto dati, limiti e risultati: [docs/market-trends.md](docs/market-trends.md).
+
+## Market Trends 2.0 — branch sperimentale
+
+Connettori modulari JSON, permessi prima delle richieste, storico per fonte e
+feed parziali, pagina separata `experimental/index.html`. Stato:
+**0 fonti autorizzate attive, 0 carte raccolte, 0 raccolte periodiche attive**.
+`python update-market.py` ora scrive soltanto `experimental/market-state.json`;
+non aggiorna `data/market-trends.json` della Fase 1 né `prices.json`.
+Configurazione corrente: `config/market-sources.json` (la vecchia configurazione
+singola è conservata come riferimento, non letta dal nuovo runner).
+Dettagli, verifiche Val Town e template di pianificazione gratuito disabilitato:
+[Market Trends 2.0](docs/market-trends-2.md).

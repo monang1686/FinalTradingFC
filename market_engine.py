@@ -1,6 +1,5 @@
 """Verified observation infrastructure. No provider is approved by default."""
 import json
-import math
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -48,7 +47,7 @@ def ingest(payload, previous, source, now=None):
     cards, seen = [], set()
     for item in payload['players']:
         key = item.get('id')
-        if not isinstance(key, str) or not key.isdigit() or int(key) <= 0 or key in seen:
+        if not isinstance(key, str) or not key.isdigit() or int(key) <= 0 or key != str(int(key)) or key in seen:
             raise ValueError('invalid or duplicate card version id')
         seen.add(key)
         if item.get('tradeable') is not True or not isinstance(item.get('name'), str) or not item['name'].strip():
@@ -56,6 +55,12 @@ def ingest(payload, previous, source, now=None):
         at, value = stamp(item.get('timestamp')), price(item.get('price'))
         if at > now or now - at > MAX_AGE:
             raise ValueError('future or stale observation')
+        version=item.get('version')
+        if version is not None and (not isinstance(version,str) or not version.strip()):
+            raise ValueError('invalid version metadata')
+        prior_version=old.get(key,{}).get('version')
+        if prior_version and version and prior_version!=version:
+            raise ValueError('card version identity changed')
         history = list(old.get(key, {}).get('history', []))
         if history:
             last = history[-1]
@@ -69,7 +74,7 @@ def ingest(payload, previous, source, now=None):
             history.append({'timestamp': at.isoformat(), 'price': value})
         history = [p for p in history if stamp(p['timestamp']) >= now - timedelta(days=7)]
         card = {k: item[k] for k in ('id', 'name', 'tradeable')}
-        card.update(platform='console', price=value, timestamp=at.isoformat(), history=history[-336:])
+        card.update(version=version or prior_version, source_id=source['id'], platform='console', price=value, timestamp=at.isoformat(), history=history[-336:])
         # Liquidity is unavailable unless the source supplies measured sales and its window.
         sales = item.get('sales_1h')
         if sales is not None:
@@ -77,13 +82,16 @@ def ingest(payload, previous, source, now=None):
                 raise ValueError('invalid measured liquidity')
             card.update(sales_1h=sales, sales_observed_at=at.isoformat())
         cards.append(card)
+    # Retain absent cards for partial feeds; their own timestamps determine freshness.
+    present = {c['id'] for c in cards}
+    cards.extend(c for key,c in old.items() if key not in present and c.get('history') and stamp(c['history'][-1]['timestamp']) >= now-timedelta(days=7))
     return {'version': 2, 'game': 'EA Sports FC 27', 'platform': 'console',
             'source': source['endpoint'], 'source_id': source['id'], 'verified': True,
-            'updated_at': max(c['timestamp'] for c in cards), 'players': sorted(cards, key=lambda c:c['id'])}
+            'updated_at': max((c['timestamp'] for c in cards), key=stamp), 'players': sorted(cards, key=lambda c:c['id'])}
 
 def report(data, now=None, min_profit=800, min_roi=5):
     now = now or datetime.now(timezone.utc)
-    output = {'engine': 'market-trends-v1', 'live_feed_connected': False, 'status': 'blocked_no_verified_source', 'trends': [], 'results': []}
+    output = {'engine': 'market-trends-v2', 'live_feed_connected': False, 'status': 'blocked_no_verified_source', 'trends': [], 'results': []}
     if data.get('verified') is not True or data.get('game') != 'EA Sports FC 27' or data.get('platform') != 'console':
         return output
     output.update(live_feed_connected=True, status='no_fresh_observations')
@@ -112,7 +120,7 @@ def report(data, now=None, min_profit=800, min_roi=5):
                 risks.append('anomalous_history')
             if len(values)<4:
                 risks.append('insufficient_history')
-            row = {'id': card['id'], 'name': card['name'], 'timestamp': points[-1]['timestamp'], 'price': values[-1],
+            row = {'source': data.get('source'), 'source_id': data.get('source_id'), 'age_seconds': int((now-times[-1]).total_seconds()), 'reliability': 'validated_observation_not_execution_guarantee', 'version': card.get('version'), 'id': card['id'], 'name': card['name'], 'timestamp': points[-1]['timestamp'], 'price': values[-1],
                    'changes_percent': changes, 'sales_1h': sales, 'risk_flags': risks}
             output['trends'].append(row)
             output['status'] = 'ok'

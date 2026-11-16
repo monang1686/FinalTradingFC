@@ -1,0 +1,28 @@
+{
+  "sources": {
+    "val-town-fc27": {
+      "snapshot": {},
+      "last_success_at": null,
+      "status": "blocked",
+      "error": "SourceBlocked",
+      "endpoint": "https://fc27-market.val.run/latest",
+      "permission_url": null,
+      "provenance_url": "https://www.val.town/x/bowli/fut-market-api",
+      "block_reason": "Endpoint response unavailable for verification; upstream FUT.GG reuse permission and timestamp semantics unverified. Val Town schema requires a reviewed adapter before activation.",
+      "analysis": {
+        "engine": "market-trends-v2",
+        "live_feed_connected": false,
+        "status": "source_unavailable",
+        "trends": [],
+        "results": []
+      },
+      "fresh_cards": 0
+    }
+  },
+  "version": 2,
+  "generated_at": "2026-11-16T22:19:52.133260+00:00",
+  "experimental": true,
+  "automations_active": false,
+  "fresh_unique_cards": 0,
+  "status": "blocked_no_fresh_authorized_data"
+}

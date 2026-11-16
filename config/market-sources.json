@@ -1,0 +1,21 @@
+{
+  "sources": [
+    {
+      "id": "val-town-fc27",
+      "connector": "public_json",
+      "endpoint": "https://fc27-market.val.run/latest",
+      "enabled": false,
+      "verified": false,
+      "free": true,
+      "automation_allowed": false,
+      "storage_allowed": false,
+      "interval_minutes": 30,
+      "permission_url": null,
+      "provenance_url": "https://www.val.town/x/bowli/fut-market-api",
+      "verified_at": null,
+      "data_license": null,
+      "license_url": null,
+      "block_reason": "Endpoint response unavailable for verification; upstream FUT.GG reuse permission and timestamp semantics unverified. Val Town schema requires a reviewed adapter before activation."
+    }
+  ]
+}

@@ -2,7 +2,7 @@ name: FUT Trader 27 - Market Trends
 on:
   push:
     branches: [fut-trader-27-test]
-    paths: ['*.py', 'tests/**', 'config/**', 'prices.json', '.github/workflows/market-trends-test.yml']
+    paths: ['*.py', 'tests/**', 'config/**', 'experimental/index.html', 'prices.json', '.github/workflows/market-trends-test.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,7 +26,7 @@ jobs:
           name: market-trends-results
           path: |
             results.json
-            data/market-trends.json
+            experimental/market-state.json
 # No schedule/write permission until a production source is verified.
 # GitHub scheduled workflows run only from the default branch: do not move this
 # to main. Future isolated collection requires an approved external dispatcher
