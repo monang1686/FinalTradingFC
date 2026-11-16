@@ -20,15 +20,27 @@ function render(){
     a.append(node('p','Indicatori: '+r.risk_flags.join(', ')),node('small',r.warning));root.append(a);
   }
 }
+function accept(data){
+  if(data.engine!=='experimental-scanner-v1'||data.data_kind!=='synthetic'||data.simulated!==true||data.authorized!==false||!Array.isArray(data.production_signals)||data.production_signals.length||!Array.isArray(data.rows)||!Array.isArray(data.candidates)||data.rows.length>1000||data.candidates.length>1000)throw Error('Accettati solo report sintetici offline, senza segnali operativi');
+  if(data.rows.some(r=>r.simulated!==true||r.actionable!==false||!Array.isArray(r.risk_flags)))throw Error('Etichette sintetiche mancanti');
+  report=data;statusEl.textContent=data.rows.length+' carte sintetiche · '+data.candidates.length+' candidate di test · 0 segnali reali';render();
+}
 file.addEventListener('change',async()=>{
   report=null;root.replaceChildren();
   try{
     const f=file.files[0];if(!f)return;if(f.size>2000000)throw Error('Massimo 2 MB');
-    const data=JSON.parse(await f.text());
-    if(data.engine!=='experimental-scanner-v1'||data.data_kind!=='synthetic'||data.simulated!==true||data.authorized!==false||!Array.isArray(data.production_signals)||data.production_signals.length||!Array.isArray(data.rows)||!Array.isArray(data.candidates)||data.rows.length>1000||data.candidates.length>1000)throw Error('Accettati solo report sintetici offline, senza segnali operativi');
-    if(data.rows.some(r=>r.simulated!==true||r.actionable!==false||!Array.isArray(r.risk_flags)))throw Error('Etichette sintetiche mancanti');
-    report=data;statusEl.textContent=data.rows.length+' carte sintetiche · '+data.candidates.length+' candidate di test · 0 segnali reali';render();
+    accept(JSON.parse(await f.text()));
   }catch(e){report=null;root.replaceChildren();statusEl.textContent='Errore: '+e.message;}
 });
 filter.addEventListener('change',render);
 document.getElementById('clear').onclick=()=>{report=null;file.value='';root.replaceChildren();statusEl.textContent='Nessun report caricato.'};
+async function loadStaticDemo(){
+  if(location.protocol==='file:'){statusEl.textContent='Anteprima automatica disponibile via server locale; puoi caricare un JSON sintetico.';return;}
+  try{
+    const response=await fetch('./demo-data.json',{cache:'no-store'});
+    if(!response.ok)throw Error('Demo non disponibile');
+    if(file.files.length)return;
+    accept(await response.json());
+  }catch(e){if(!report)statusEl.textContent='Demo automatica non disponibile: '+e.message;}
+}
+loadStaticDemo();
