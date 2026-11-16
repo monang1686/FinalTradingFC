@@ -1,0 +1,28 @@
+
+name: FUT Trader 27 - Test Telegram
+
+on:
+  push:
+    branches:
+      - fut-trader-27-test
+    paths:
+      - '.github/workflows/telegram-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  telegram-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invia messaggio di prova
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl --fail-with-body --show-error --silent \
+            --request POST \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            --data-urlencode "text=FUT Trader 27 - TEST riuscito! Il collegamento Telegram funziona. Nessuna opportunita di mercato verificata."
