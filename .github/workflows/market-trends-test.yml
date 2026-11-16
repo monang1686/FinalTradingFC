@@ -1,0 +1,42 @@
+
+name: FUT Trader 27 - Market Trends
+
+on:
+  push:
+    branches:
+      - fut-trader-27-test
+    paths:
+      - 'market-trends.py'
+      - 'prices.json'
+      - '.github/workflows/market-trends-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  market-trends:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il branch di test
+        uses: actions/checkout@v4
+
+      - name: Configura Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Esegui Market Trends
+        run: |
+          python market-trends.py prices.json > results.json
+
+      - name: Verifica risultati
+        run: |
+          python -m json.tool results.json
+          python -c "import json; d=json.load(open('results.json')); assert isinstance(d['results'], list)"
+
+      - name: Salva risultati
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-trends-results
+          path: results.json
