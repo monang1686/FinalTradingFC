@@ -1,0 +1,40 @@
+
+name: FUT Trader 27 - Live Source Probe
+
+on:
+  push:
+    branches:
+      - fut-trader-27-test
+    paths:
+      - '.github/workflows/fc27-live-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test live market endpoint
+        run: |
+          python fetch-fc27-market.py --output fc27-probe-output.json --max-age-minutes 120
+      - name: Verify research-only output
+        run: |
+          python - <<'PY'
+          import json
+          with open('fc27-probe-output.json', encoding='utf-8') as f:
+              data = json.load(f)
+          print('Source:', data['source'])
+          print('Updated:', data['source_updated_at'])
+          print('Cards:', len(data['observations']))
+          print('Platform:', data['platform'])
+          assert data['platform'] == 'unverified'
+          assert data['status'] == 'research_only_no_trading_alerts'
+          PY
