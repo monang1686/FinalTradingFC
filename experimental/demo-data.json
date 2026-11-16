@@ -1,0 +1,123 @@
+{
+  "engine": "experimental-scanner-v1",
+  "generated_at": "2026-11-16T22:00:00Z",
+  "data_kind": "synthetic",
+  "simulated": true,
+  "authorized": false,
+  "status": "synthetic_demo",
+  "rows": [
+    {
+      "id": "900000001",
+      "name": "CARTA TEST A",
+      "version": "TEST ONLY",
+      "source_id": "synthetic-static-demo",
+      "simulated": true,
+      "actionable": false,
+      "price": 10000,
+      "timestamp": "2026-11-16T22:00:00Z",
+      "age_seconds": 0,
+      "changes_percent": {
+        "1h": -16.67,
+        "6h": -16.67,
+        "24h": -16.67
+      },
+      "sell_target_estimate": 12000,
+      "net_profit_estimate": 1400,
+      "net_roi_percent": 14,
+      "risk": {
+        "score": 10,
+        "level": "low"
+      },
+      "risk_flags": [
+        "synthetic_test_data"
+      ],
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+    },
+    {
+      "id": "900000002",
+      "name": "CARTA TEST B",
+      "version": "TEST ONLY",
+      "source_id": "synthetic-static-demo",
+      "simulated": true,
+      "actionable": false,
+      "price": 10000,
+      "timestamp": "2026-11-16T22:00:00Z",
+      "age_seconds": 0,
+      "changes_percent": {
+        "1h": -16.67,
+        "6h": -16.67,
+        "24h": -16.67
+      },
+      "sell_target_estimate": 12000,
+      "net_profit_estimate": 1400,
+      "net_roi_percent": 14,
+      "risk": {
+        "score": 65,
+        "level": "high"
+      },
+      "risk_flags": [
+        "synthetic_test_data",
+        "stale_quote"
+      ],
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+    },
+    {
+      "id": "900000003",
+      "name": "CARTA TEST C",
+      "version": "TEST ONLY",
+      "source_id": "synthetic-static-demo",
+      "simulated": true,
+      "actionable": false,
+      "price": 10000,
+      "timestamp": "2026-11-16T22:00:00Z",
+      "age_seconds": 0,
+      "changes_percent": {
+        "1h": -16.67,
+        "6h": -16.67,
+        "24h": -16.67
+      },
+      "sell_target_estimate": 12000,
+      "net_profit_estimate": 1400,
+      "net_roi_percent": 14,
+      "risk": {
+        "score": 20,
+        "level": "low"
+      },
+      "risk_flags": [
+        "synthetic_test_data",
+        "liquidity_unknown"
+      ],
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "900000001",
+      "name": "CARTA TEST A",
+      "version": "TEST ONLY",
+      "source_id": "synthetic-static-demo",
+      "simulated": true,
+      "actionable": false,
+      "price": 10000,
+      "timestamp": "2026-11-16T22:00:00Z",
+      "age_seconds": 0,
+      "changes_percent": {
+        "1h": -16.67,
+        "6h": -16.67,
+        "24h": -16.67
+      },
+      "sell_target_estimate": 12000,
+      "net_profit_estimate": 1400,
+      "net_roi_percent": 14,
+      "risk": {
+        "score": 10,
+        "level": "low"
+      },
+      "risk_flags": [
+        "synthetic_test_data"
+      ],
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+    }
+  ],
+  "production_signals": []
+}
