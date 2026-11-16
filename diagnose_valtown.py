@@ -51,6 +51,33 @@ def main():
                         entry["item_keys"] = sorted(str(k) for k in group_value[0].keys())[:35]
                 shapes.append(entry)
             report["group_shapes"] = shapes
+            if isinstance(groups, dict):
+                report["group_counts"] = {str(k)[:40]: len(v) for k, v in groups.items() if isinstance(v, list)}
+                cards = [card for v in groups.values() if isinstance(v, list) for card in v if isinstance(card, dict)]
+                report["card_count"] = len(cards)
+                report["price_types"] = dict(Counter(type(card.get("price")).__name__ for card in cards))
+                report["missing_price_count"] = sum(card.get("price") is None for card in cards)
+                report["nonpositive_numeric_price_count"] = sum(
+                    isinstance(card.get("price"), (int, float)) and not isinstance(card.get("price"), bool)
+                    and card["price"] <= 0 for card in cards
+                )
+                report["missing_ea_id_count"] = sum(card.get("eaId") is None for card in cards)
+                report["missing_rarity_id_count"] = sum(card.get("rarityId") is None for card in cards)
+                report["cards_with_individual_timestamp"] = sum(
+                    any(card.get(key) is not None for key in ("timestamp", "updated_at", "observed_at", "lastUpdated"))
+                    for card in cards
+                )
+                pairs = [(str(card.get("eaId")), str(card.get("rarityId"))) for card in cards
+                         if card.get("eaId") is not None and card.get("rarityId") is not None]
+                report["duplicate_ea_rarity_pairs"] = len(pairs) - len(set(pairs))
+                report["platform_field_present_count"] = sum(
+                    any(card.get(key) is not None for key in ("platform", "console", "market"))
+                    for card in cards
+                )
+                report["tradeable_field_present_count"] = sum(
+                    any(card.get(key) is not None for key in ("tradeable", "tradable"))
+                    for card in cards
+                )
         report["root_type"] = type(data).__name__
         if isinstance(data, dict):
             report["root_keys"] = sorted(str(k) for k in data.keys())[:60]
