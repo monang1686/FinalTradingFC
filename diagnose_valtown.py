@@ -29,6 +29,8 @@ def main():
             raise ValueError("response exceeds diagnostic size limit")
         data = json.loads(raw)
         report["json_valid"] = True
+        from valtown_adapter import inspect
+        report["adapter_quality"] = inspect(data)
         # Structural inspection only; never log raw card records or values.
         if isinstance(data, dict) and isinstance(data.get("groups"), (dict, list)):
             groups = data["groups"]
