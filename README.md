@@ -32,3 +32,19 @@ Configurazione corrente: `config/market-sources.json` (la vecchia configurazione
 singola è conservata come riferimento, non letta dal nuovo runner).
 Dettagli, verifiche Val Town e template di pianificazione gratuito disabilitato:
 [Market Trends 2.0](docs/market-trends-2.md).
+
+## Scanner offline e audit aggiornato
+
+[Rapporto fonti e stato completo](docs/scanner-audit.md).
+Nuova demo in `experimental/scanner.html`, senza connessioni a dati reali:
+
+```sh
+mkdir -p work
+python experimental_scanner.py --demo > work/scanner-demo.json
+```
+
+Caricare il report nella pagina della demo. Prezzi e candidate sono **fixture
+sintetiche**, mai segnali operativi. Restano zero fonti autorizzate attive e zero
+raccolte periodiche. Nessun nuovo progetto: il precedente template per repository
+separato non va installato con i vincoli attuali. I commit di questo intervento
+sono locali al branch test, senza push o deployment.

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scanner offline — FUT Trader 27</title>
+<style>body{font:16px system-ui;background:#0b1220;color:#eef3fb;max-width:900px;margin:auto;padding:16px;overflow-wrap:anywhere}a{color:#7de6c2}article,.notice{background:#19243a;border:1px solid #52617b;border-radius:12px;padding:16px;margin:12px 0}.notice{border-color:#ecc66b;color:#ffe7a5}input,button{font:inherit;max-width:100%;min-height:44px}button{background:#21ac83;border:0;border-radius:8px;padding:12px}small{color:#b5c2d6}.filters{display:flex;gap:12px;flex-wrap:wrap}h2{font-size:19px}.risk{font-weight:bold}</style></head><body>
+<h1>Scanner sperimentale</h1><p><a href="index.html">Stato delle fonti</a></p>
+<div class="notice"><strong>Solo fixture sintetiche.</strong> Nessuna quotazione reale, asta disponibile o segnale operativo. Il punteggio è un indice euristico di rischio, non una probabilità di perdita.</div>
+<p>Carica il report della demo offline. Nessun invio a server e nessuna richiesta al mercato.</p>
+<label>Report sintetico JSON <input id="file" type="file" accept="application/json,.json"></label>
+<p id="status" role="status">Nessun report caricato.</p>
+<div class="filters"><label>Mostra <select id="filter"><option value="all">Tutte le carte di test</option><option value="candidates">Solo candidate della demo</option></select></label><button id="clear">Svuota</button></div>
+<main id="results"></main><script src="scanner.js"></script></body></html>
