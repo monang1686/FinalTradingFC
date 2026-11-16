@@ -29,6 +29,28 @@ def main():
             raise ValueError("response exceeds diagnostic size limit")
         data = json.loads(raw)
         report["json_valid"] = True
+        # Structural inspection only; never log raw card records or values.
+        if isinstance(data, dict) and isinstance(data.get("groups"), (dict, list)):
+            groups = data["groups"]
+            report["groups_type"] = type(groups).__name__
+            report["groups_count"] = len(groups)
+            samples = list(groups.items())[:3] if isinstance(groups, dict) else [(str(i), v) for i, v in enumerate(groups[:3])]
+            shapes = []
+            for group_name, group_value in samples:
+                entry = {"group_label": str(group_name)[:40], "type": type(group_value).__name__}
+                if isinstance(group_value, dict):
+                    entry["keys"] = sorted(str(k) for k in group_value.keys())[:30]
+                    entry["list_sizes"] = {str(k): len(v) for k, v in group_value.items() if isinstance(v, list)}
+                    for v in group_value.values():
+                        if isinstance(v, list) and v and isinstance(v[0], dict):
+                            entry["item_keys"] = sorted(str(k) for k in v[0].keys())[:35]
+                            break
+                elif isinstance(group_value, list):
+                    entry["count"] = len(group_value)
+                    if group_value and isinstance(group_value[0], dict):
+                        entry["item_keys"] = sorted(str(k) for k in group_value[0].keys())[:35]
+                shapes.append(entry)
+            report["group_shapes"] = shapes
         report["root_type"] = type(data).__name__
         if isinstance(data, dict):
             report["root_keys"] = sorted(str(k) for k in data.keys())[:60]
