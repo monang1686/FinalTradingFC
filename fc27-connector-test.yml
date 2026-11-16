@@ -1,0 +1,57 @@
+name: FUT Trader 27 - Connector Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fut-trader-27-test
+    paths:
+      - 'fetch-fc27-market.py'
+      - '.github/workflows/fc27-connector-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-connector:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Create offline test fixture
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          stamp = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+          data = {'updated': stamp, 'groups': {'gold': [
+              {'eaId': 123456, 'name': 'TEST CARD - NOT REAL', 'price': 10000},
+              {'eaId': 123456, 'name': 'TEST CARD - NOT REAL', 'price': 10000}
+          ]}}
+          with open('connector-fixture.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f)
+          PY
+      - name: Validate connector offline (no API requests)
+        run: |
+          python fetch-fc27-market.py --input connector-fixture.json --output connector-test-output.json
+      - name: Verify snapshot isolation and deduplication
+        run: |
+          python - <<'PY'
+          import json
+          with open('connector-test-output.json', encoding='utf-8') as f:
+              data = json.load(f)
+          assert data['platform'] == 'unverified'
+          assert data['status'] == 'research_only_no_trading_alerts'
+          assert len(data['observations']) == 1
+          assert data['observations'][0]['price'] == 10000
+          print('PASS: schema, deduplication, no trading signals')
+          PY
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: connector-validation-offline
+          path: connector-test-output.json
