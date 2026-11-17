@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090f1d"><title>FUT Trader 27 — Simulatore</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui,-apple-system,sans-serif;background:#090f1d;color:#edf5ff;font-variant-numeric:tabular-nums}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#183453,#090f1d 75%) fixed}.shell{max-width:800px;margin:auto;padding:23px 16px 65px}a{color:#7ee5c4}h1{font-size:clamp(29px,7vw,38px);letter-spacing:-.04em;margin:9px 0}h2{font-size:18px;margin:0 0 14px}.eyebrow{color:#73e7be;font-size:12px;font-weight:800;letter-spacing:.13em}.muted,.hint{color:#adbed2;font-size:13px;line-height:1.5}.notice{background:#252031;border:1px solid #846d4a;color:#ffdfa4;padding:13px;border-radius:14px;margin:18px 0;font-size:13px;line-height:1.5}.panel,.stat{background:linear-gradient(150deg,#1a2b43,#101c2f);border:1px solid #34465e;border-radius:16px;padding:17px;margin:14px 0}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats .stat{margin:0;padding:13px}.stat span{font-size:12px;color:#b3c4d6}.stat strong{display:block;font-size:clamp(23px,6vw,30px);margin-top:5px;letter-spacing:-.03em}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px;color:#bfd0e1;font-size:13px}input,select,button{font:inherit;min-height:45px}input,select{background:#101e31;border:1px solid #4b627f;border-radius:10px;color:#f5f9ff;padding:10px;width:100%;min-width:0}button{border:0;border-radius:11px;padding:10px 15px;background:#22b88b;color:#071b17;font-weight:800;cursor:pointer}.secondary{background:#2b405c;color:#edf5ff}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:490px}td,th{text-align:left;border-bottom:1px solid #33465d;padding:10px 8px}th{color:#a9bdd1;font-weight:600}.positive{color:#78efbd}.negative{color:#ff9e9e}.status{font-size:13px;color:#ffda98;min-height:20px}.mini{font-size:12px;color:#afc2d6}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7cf5c9;outline-offset:2px}@media(max-width:360px){.fields{grid-template-columns:1fr}.stats .stat{padding:10px}.stat strong{font-size:22px}}
+</style></head><body><div class="shell">
+<div class="eyebrow">FUT TRADER 27 / LAB</div><h1>Trading Simulator</h1><p class="muted">Simulazione manuale di compravendite · <a href="scanner.html">Torna allo scanner</a></p>
+<div class="notice"><strong>SOLO SIMULAZIONE.</strong> Nessun prezzo o acquisto reale. Le operazioni vengono registrate solo quando premi Acquista o Vendi. Le vendite non sono garantite nel mercato vero. Nessun dato viene inviato a server.</div>
+<section class="panel"><h2>Capitale iniziale</h2><div class="fields"><label class="field">Crediti iniziali<input id="capital" type="number" min="1000" max="100000000" step="1000" value="100000"></label><label class="field">Commissione EA<input value="5% su ogni vendita" disabled></label></div><div class="actions"><button id="start">Avvia / azzera simulazione</button></div><p class="hint">L'azzeramento cancella tutte le operazioni di questa sessione. Non viene conservato uno storico sul dispositivo.</p></section>
+<section class="stats" aria-label="Riepilogo"><div class="stat"><span>Crediti disponibili</span><strong id="cash">100.000</strong></div><div class="stat"><span>Profitto realizzato</span><strong id="profit">0</strong></div><div class="stat"><span>Carte in inventario</span><strong id="inventory">0</strong></div><div class="stat"><span>Operazioni completate</span><strong id="completed">0</strong></div></section>
+<section class="panel"><h2>Registra un'operazione fittizia</h2><div class="fields"><label class="field">Carta di test<select id="item"><option value="A">Carta test A</option><option value="B">Carta test B</option><option value="C">Carta test C</option></select></label><label class="field">Prezzo (crediti)<input id="price" type="number" min="1" max="15000000" step="1" value="10000"></label></div><div class="actions"><button id="buy">Acquista</button><button class="secondary" id="sell">Vendi</button></div><p id="message" role="status" aria-live="polite" class="status"></p><p class="hint">Una sola carta per tipo alla volta. Il profitto è realizzato soltanto dopo una vendita esplicita. Il valore delle carte non vendute non è incluso nel saldo.</p></section>
+<section class="panel"><h2>Inventario simulato</h2><div id="holdings" class="muted">Nessuna carta acquistata.</div></section>
+<section class="panel"><h2>Registro operazioni</h2><div class="table-wrap"><table><thead><tr><th>Evento</th><th>Carta</th><th>Prezzo</th><th>Commissione</th><th>Profitto netto</th></tr></thead><tbody id="history"></tbody></table></div><p class="mini">I prezzi sono scelti da te per verificare i calcoli. Non costituiscono un backtest storico e non provano che un'asta sarebbe stata eseguita.</p></section>
+</div><script>
+'use strict';
+const $=id=>document.getElementById(id),fmt=n=>n.toLocaleString('it-IT'),cash0=100000;
+let cash=cash0,realized=0,completed=0,holdings=new Map(),history=[];
+const names={A:'Carta test A',B:'Carta test B',C:'Carta test C'};
+function paint(){
+ $('cash').textContent=fmt(cash);$('profit').textContent=(realized>0?'+':'')+fmt(realized);$('profit').className=realized>0?'positive':realized<0?'negative':'';
+ $('inventory').textContent=holdings.size;$('completed').textContent=completed;
+ $('holdings').replaceChildren();
+ if(!holdings.size)$('holdings').textContent='Nessuna carta acquistata.';
+ for(const [id,value] of holdings){const p=document.createElement('p');p.textContent=names[id]+' · costo '+fmt(value)+' crediti';$('holdings').append(p)}
+ $('history').replaceChildren();
+ for(const r of history.slice().reverse()){
+  const tr=document.createElement('tr');
+  for(const value of [r.kind,names[r.id],fmt(r.price),r.fee==null?'—':fmt(r.fee),r.net==null?'—':(r.net>0?'+':'')+fmt(r.net)]){
+   const td=document.createElement('td');td.textContent=value;tr.append(td);
+  }$('history').append(tr);
+ }
+}
+function msg(text){$('message').textContent=text}
+function current(){
+ const n=Number($('price').value);
+ if(!Number.isSafeInteger(n)||n<1||n>15000000){msg('Inserisci un prezzo intero valido tra 1 e 15.000.000.');return null}
+ return {id:$('item').value,value:n}
+}
+$('start').onclick=()=>{
+ const n=Number($('capital').value);
+ if(!Number.isSafeInteger(n)||n<1000||n>100000000){msg('Il capitale deve essere un intero tra 1.000 e 100.000.000.');return}
+ cash=n;realized=0;completed=0;holdings.clear();history=[];msg('Simulazione azzerata.');paint();
+};
+$('buy').onclick=()=>{
+ const x=current();if(!x)return;
+ if(holdings.has(x.id)){msg('Hai già questa carta in inventario. Vendila prima di ricomprarla.');return}
+ if(x.value>cash){msg('Crediti insufficienti.');return}
+ cash-=x.value;holdings.set(x.id,x.value);
+ history.push({kind:'Acquisto',id:x.id,price:x.value,fee:null,net:null});msg('Acquisto simulato registrato.');paint();
+};
+$('sell').onclick=()=>{
+ const x=current();if(!x)return;
+ if(!holdings.has(x.id)){msg('Non possiedi questa carta simulata.');return}
+ const buy=holdings.get(x.id),fee=x.value-Math.floor(x.value*95/100),net=x.value-fee-buy;
+ cash+=x.value-fee;realized+=net;completed++;holdings.delete(x.id);
+ history.push({kind:'Vendita',id:x.id,price:x.value,fee,net});msg('Vendita simulata completata. Profitto netto: '+fmt(net)+' crediti.');paint();
+};
+paint();
+</script></body></html>
