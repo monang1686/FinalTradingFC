@@ -12,6 +12,7 @@ def audit(config_path="config/market-sources.json"):
     report=[]
     for s in sources:
         missing=[k for k in ("permission_url","verified_at","data_license","license_url") if not s.get(k)]
+        reason=""
         try:
             authorize(s)
             status="approved_for_connector_review"
