@@ -27,7 +27,7 @@ class MobileDashboardTests(unittest.TestCase):
     def test_opt_in_polling_keeps_unverified_guardrails(self):
         self.assertIn("id=\"refresh\"", self.html)
         self.assertIn("credentials:'omit'", self.html)
-        self.assertIn("proxyUrl='/api/experimental-prices'", self.html)
+        self.assertIn("proxyUrl='/data/history.json'", self.html)
         self.assertIn("30*60*1000", self.html)
         self.assertIn("return valid({schema:'fut27-experimental-feed-v1'", self.html)
 
