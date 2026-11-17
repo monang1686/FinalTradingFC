@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "FUT Trader 27 — Local Capture",
-  "version": "0.1.0",
-  "description": "Capture only text you select manually on an open page. No network or EA account automation.",
+  "version": "0.2.0",
+  "description": "Acquisizione su richiesta di carte visibili e archivio locale di quotazioni verificate; nessuna automazione EA.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html"
