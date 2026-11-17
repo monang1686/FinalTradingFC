@@ -1,0 +1,53 @@
+name: FUT27 - Publish experimental history (test only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fut27-history-publisher-test
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/fut-trader-27-test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fut-trader-27-test
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect experimental snapshot
+        run: python experimental/mobile-trader/valtown_snapshot.py work/valtown-experimental.json
+      - name: Append snapshot to committed history
+        run: |
+          mkdir -p experimental/mobile-trader/data
+          python experimental/mobile-trader/valtown_history.py experimental/mobile-trader/data/history.json work/valtown-experimental.json work/valtown-comparison.json
+      - name: Validate and publish only when changed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('experimental/mobile-trader/data/history.json')
+          data=json.loads(p.read_text())
+          assert data['schema']=='fut27-experimental-history-v1'
+          assert data['snapshots'] and len(data['snapshots'])<=336
+          for s in data['snapshots']:
+              assert s['verified'] is False
+              assert s['production_signals_enabled'] is False
+              assert s['cards']
+          print('Experimental history validated:',len(data['snapshots']))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experimental/mobile-trader/data/history.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(test): refresh unverified FC27 history [skip ci]"
+            git push origin HEAD:fut-trader-27-test
+          else
+            echo "No new distinct observation"
+          fi
+# Scheduling is intentionally not claimed: GitHub schedule only executes
+# on the default branch. Do not add a schedule to main without approval.
