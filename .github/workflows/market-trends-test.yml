@@ -5,7 +5,7 @@ on:
     paths: ['*.py', 'tests/**', 'config/**', 'experimental/**', 'prices.json', '.github/workflows/market-trends-test.yml']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: fut27-experimental-history-test
   cancel-in-progress: false
@@ -44,6 +44,26 @@ jobs:
         with:
           path: work/valtown-history.json
           key: fut27-history-test-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Publish experimental history to test branch (if snapshot exists)
+        if: hashFiles('work/valtown-experimental.json') != ''
+        run: |
+          mkdir -p experimental/mobile-trader/data
+          python experimental/mobile-trader/valtown_history.py experimental/mobile-trader/data/history.json work/valtown-experimental.json work/published-comparison.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('experimental/mobile-trader/data/history.json').read_text())
+          assert d['schema']=='fut27-experimental-history-v1'
+          assert 1<=len(d['snapshots'])<=336
+          assert all(s['verified'] is False and s['production_signals_enabled'] is False for s in d['snapshots'])
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experimental/mobile-trader/data/history.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(test): publish unverified FC27 history [skip ci]"
+            git push origin HEAD:fut-trader-27-test
+          fi
       - name: Offline source permission audit (no external requests)
         run: python audit_market_sources.py
       - run: mkdir -p work
