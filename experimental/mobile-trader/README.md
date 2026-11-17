@@ -7,3 +7,12 @@ Open `experimental/mobile-trader/index.html` via GitHub Pages test preview if co
 Provider documentation: https://datafluxor.com/fut-data. Provider claims ~45-minute refresh for most cards and ~10-minute refresh for top 500, $29/month, 100k requests. Sandbox is illustrative only. API key must never be committed to GitHub or exposed in browser JavaScript. Before activation verify live API response, license/reuse permission, key handling, and deployment architecture.
 
 No real trading signals are generated yet. 15-minute freshness threshold is intentionally stricter than provider's typical 45-minute refresh.
+
+
+## Dashboard sperimentale con storico Val Town (iPhone)
+
+Il nuovo file `dashboard.html` e' separato da `index.html` e da GitHub Pages su `main`. Per testarlo: GitHub Actions > FUT Trader 27 - Market Trends > ultima esecuzione riuscita > Artifacts > `market-trends-results`. Scaricare ed estrarre `experimental/mobile-trader/dashboard.html` e `work/valtown-history.json`; aprire l'HTML e importare il JSON tramite il selettore file.
+
+Il file JSON e' letto localmente nel browser; nessuna credenziale o acquisto automatico. I prezzi sono osservazioni non verificate, e il confronto richiede almeno due timestamp distinti. Non ci sono ancora aggiornamenti automatici nella pagina.
+
+Un link HTTPS iPhone permanente, indipendente da `main`, richiede un hosting separato o una configurazione di pubblicazione dedicata. Il workflow non e' schedulato periodicamente.
