@@ -53,3 +53,15 @@ Sources checked:
 - https://app.futdatabase.com/
 - https://fut-db.com/terms
 - https://datafluxor.com/fut-data
+
+## Terms and vendor-contact update — 2026-11-17
+
+Official DataFluxor terms (last updated 10 Nov 2026): https://datafluxor.com/terms
+
+- FUT Data is a **separate** subscription from the general Free/Starter/Pro/Scale plans. The 250 free monthly credits do **not** establish free live FUT price access.
+- The provider permits using results in one's own products subject to its terms, but forbids resale, sublicensing or raw third-party API access without written agreement. It explicitly assigns responsibility for complying with EA game terms to the customer.
+- FUT Data observations are provided as-is and may be delayed or incomplete; no accuracy or availability guarantee.
+- Section 4 allows **complimentary FUT Data trial by individual arrangement**, without a card, with a defined end date and no automatic conversion to a paid subscription. This is the preferred next step; it is not guaranteed.
+- Vendor contact published in terms: support@datafluxor.com. Do not send API credentials by email.
+
+Before enabling a pilot, request written confirmation of: (a) private dashboard use; (b) automated polling at 30–60 minutes; (c) retention of per-card quotes for 90 days and backtesting; (d) any attribution, source-data and EA-related constraints; (e) exact schema and measured freshness; (f) whether complimentary FUT Data trial is possible. No activation or purchase is authorized by this document.
