@@ -33,7 +33,12 @@ async def collect(ids):
                     "source": "quick-fut-price/futbin_unofficial",
                 })
             except Exception as exc:
-                print(f"FUTBIN ID {player_id}: unavailable ({type(exc).__name__})")
+                # Log only the HTTP status; never log URLs, headers or response bodies.
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if status is None:
+                    status = getattr(exc, "status_code", None)
+                detail = f"HTTP {status}" if isinstance(status, int) else "HTTP status unavailable"
+                print(f"FUTBIN ID {player_id}: unavailable ({type(exc).__name__}; {detail})")
             # One-shot and deliberately slow. No automatic retries.
             await asyncio.sleep(3)
     return {"format": "fut27-quick-fut-price-v1", "success": True,
