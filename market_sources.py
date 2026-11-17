@@ -23,7 +23,7 @@ def authorize(source, now=None):
         raise SourceBlocked('free automated collection/storage not authorized')
     if source.get('interval_minutes', 0) < 30:
         raise SourceBlocked('source frequency must be at least 30 minutes')
-    if source.get('connector') not in ('json_api', 'public_json'):
+    if source.get('connector') not in ('json_api', 'public_json', 'valtown_json'):
         raise SourceBlocked('unsupported connector')
     if not 0 <= (now-stamp(source['verified_at'])).total_seconds() <= 90*86400:
         raise SourceBlocked('verification expired or future')
@@ -73,11 +73,23 @@ class PublicJSON(JsonAPI):
             raise SourceBlocked('public feed requires data license evidence')
         return super().normalize(payload,source)
 
-CONNECTORS={'json_api':JsonAPI(),'public_json':PublicJSON()}
+class ValTownJSON:
+    """Adapter for Val Town /latest: diagnostics, not trade quotes."""
+    def normalize(self,payload,source):
+        if not source.get('data_license') or not source.get('license_url'):
+            raise SourceBlocked('Val Town requires documented reuse license')
+        from valtown_adapter import normalize_for_review
+        report=normalize_for_review(payload)
+        return {'source_id':source['id'],'kind':'quality_diagnostics',
+                'diagnostics':report,'actionable':False,
+                'note':'Feed timestamp is not a per-card quote timestamp.'}
+
+CONNECTORS={'json_api':JsonAPI(),'public_json':PublicJSON(),
+            'valtown_json':ValTownJSON()}
 
 def collect(source,transport=fetch_json):
     authorize(source)
     connector=CONNECTORS[source['connector']]
-    if isinstance(connector,PublicJSON) and (not source.get('data_license') or not source.get('license_url')):
+    if isinstance(connector,(PublicJSON,ValTownJSON)) and (not source.get('data_license') or not source.get('license_url')):
         raise SourceBlocked('public feed requires data license evidence')
     return connector.normalize(transport(source),source)
