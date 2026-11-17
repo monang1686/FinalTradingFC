@@ -18,7 +18,7 @@ shutil.copyfile(ROOT / "dashboard.html", OUT / "index.html")
     "  Referrer-Policy: no-referrer\n"
     "  X-Frame-Options: DENY\n"
     "  Cache-Control: no-cache\n"
-    "  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://fc27-market.val.run; base-uri 'none'; form-action 'none'\n",
+    "  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://fc27-market.val.run; base-uri 'none'; form-action 'none'\n",
     encoding="utf-8",
 )
 print("Cloudflare Pages preview built at", OUT)
