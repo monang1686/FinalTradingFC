@@ -19,6 +19,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
+      - name: Val Town public FC27 feed diagnostic (read-only, non-blocking)
+        continue-on-error: true
+        run: python experimental/mobile-trader/valtown_source_probe.py
       - name: Offline source permission audit (no external requests)
         run: python audit_market_sources.py
       - run: mkdir -p work
