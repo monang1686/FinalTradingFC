@@ -12,6 +12,11 @@ ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "dist"
 OUT.mkdir(exist_ok=True)
 shutil.copyfile(ROOT / "dashboard.html", OUT / "index.html")
+# Publish a committed, explicitly unverified history when present.
+history = ROOT / "data" / "history.json"
+if history.is_file():
+    (OUT / "data").mkdir(exist_ok=True)
+    shutil.copyfile(history, OUT / "data" / "history.json")
 (OUT / "_headers").write_text(
     "/*\n"
     "  X-Content-Type-Options: nosniff\n"
