@@ -24,6 +24,13 @@ class MobileDashboardTests(unittest.TestCase):
         self.assertIn("c.price-p.price", self.html)
         self.assertIn("arr[i-1].updated_at", self.html)
 
+    def test_cloudflare_build_is_isolated(self):
+        builder = Path("experimental/mobile-trader/build_pages.py").read_text(encoding="utf-8")
+        self.assertIn('ROOT / "dashboard.html"', builder)
+        self.assertIn('OUT / "index.html"', builder)
+        self.assertNotIn("prices.json", builder)
+        self.assertNotIn("main", builder)
+
     def test_no_html_injection_from_player_names(self):
         self.assertIn("name.textContent=c.name", self.html)
         self.assertNotIn("innerHTML", self.html)
