@@ -13,7 +13,8 @@ function render(){
     a.append(node('h2',r.name+' — SINTETICA'),node('p','ID di test: '+r.id+' · Fonte: '+r.source_id));
     a.append(node('p','Prezzo sintetico: '+number(r.price)+' · Età al calcolo: '+number(r.age_seconds)+' s'));
     const at=Date.parse(r.timestamp),age=Date.now()-at;
-    if(!Number.isFinite(at)||age<0||age>3600000)a.append(node('p','Attenzione: data futura, mancante o quotazione vecchia rispetto a ora.'));
+    if(r.source_id==='synthetic-static-demo')a.append(node('p','Data dimostrativa fissa: non rappresenta la freschezza del mercato.'));
+    else if(!Number.isFinite(at)||age<0||age>3600000)a.append(node('p','Attenzione: data futura, mancante o quotazione vecchia rispetto a ora.'));
     a.append(node('p',['1h','6h','24h'].map(k=>k+': '+(r.changes_percent?.[k]==null?'n.d.':number(r.changes_percent[k])+'%')).join(' · ')));
     a.append(node('p','Target storico sintetico: '+number(r.sell_target_estimate)+' · Margine netto stimato: '+number(r.net_profit_estimate)+' · ROI: '+number(r.net_roi_percent)+'%'));
     const risk=node('p','Rischio: '+number(r.risk?.score)+'/100 · '+r.risk?.level);risk.className='risk';a.append(risk);
