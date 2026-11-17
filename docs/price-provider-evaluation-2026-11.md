@@ -6,8 +6,8 @@
 
 | Provider | Public capability | Cost / access | Current decision |
 |---|---|---|---|
-| DataFluxor FUT Data | API: exact EA card IDs, console vs PC, per-price observed_at, price history. Says 45-minute general refresh, ~10-minute refresh for top 500. | $29/month, 100,000 requests; sample sandbox is fixed, not live. | **Candidate for authorized pilot** after user opts into paid service and written confirmation of storage/reuse rights. No API key in repository. |
-| FUT-DB | JSON REST API with player and price information. | Free account/API key offered; some price fields premium. | **Candidate for free access check**: determine whether console prices and history are included, quotas and reuse terms. |
+| DataFluxor FUT Data | API: exact EA card IDs, console vs PC, per-price observed_at, price history. Says 45-minute general refresh, ~10-minute refresh for top 500. | $29/month, 100,000 requests; sample sandbox is fixed, not live. | **Preferred technical candidate, not yet authorized**: $29/month for 100,000 requests; up to 500 cards per price request; public sandbox contains fixed sample data, not live prices. Provider offers 250 free monthly credits, but production entitlement and reuse/storage rights require confirmation. No API key in repository. |
+| FUT-DB | JSON REST API with player and price information. | Free account/API key offered; **current player-price endpoints are premium only**. | **Rejected as a free price feed**: premium player-price endpoints, €79/month advertised; refresh 30 minutes–24 hours; one request per player. |
 | FCData | Public console and PC lowest BIN observations, timestamps and historical changes. | No public automation/API permission verified. | **Blocked** for automated extraction. Browsing is not API authorization. |
 | EA Community API | EA approved FUT.GG, FUTBIN, FUTWIZ for certain account data. | Not a general public market-price API. | **Not available** for this project's automated market prices. |
 
@@ -41,3 +41,15 @@ Existing `market_sources.py` requires an explicitly enabled and verified source 
 - What are quota, latency, refresh cadence, retention, attribution and redistribution restrictions?
 
 **No API keys, scraping, scheduled requests or public dashboard changes in this research phase.**
+
+## Verification update — 2026-11-17
+
+- FUT-DB documentation labels both `GET /api/players/{playerId}/price` and `GET /api/players/prices` **premium only**. Its published premium price is €79/month and its FAQ says bulk player-price requests are not supported. Therefore a free API key does **not** unlock usable console-price collection.
+- DataFluxor's published API supports `GET /api/v1/fut/prices?ea_ids=…&platform=ps` with up to 500 exact EA IDs, and describes price timestamps and source. Public sandbox samples are fixed and must never be labelled live.
+- FUT-DB terms reserve rights in the API content and restrict reproduction/distribution without permission. Obtain explicit terms for archival and dashboard use before collection.
+
+Sources checked:
+- https://api.fut-db.com/api/doc/index.html
+- https://app.futdatabase.com/
+- https://fut-db.com/terms
+- https://datafluxor.com/fut-data
