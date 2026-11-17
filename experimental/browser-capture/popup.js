@@ -43,15 +43,24 @@ el('inspectCard').onclick=async()=>{try{
  pageUrl=tab.url;
  const [{result}]=await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>{
   const visible=e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight};
-  const blocks=[...document.querySelectorAll('h1,h2,h3,h4,[class*="player-name"],[class*="item-name"],[class*="rating"],[class*="position"],[class*="item-details"],[class*="itemDetails"]')].filter(visible).slice(0,80).map(e=>({tag:e.tagName,text:(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim().slice(0,120)})).filter(e=>e.text);
-  const body=(document.body.innerText||'').slice(-18000);
-  const marker=body.lastIndexOf('Item Details');
-  const section=marker>=0?body.slice(marker,marker+1100):'';
-  const snippets=blocks.slice(0,25);
-  return {section,snippets};
+  const heading=[...document.querySelectorAll('h1,h2,h3,h4,[role="heading"]')].find(e=>visible(e)&&/^Item Details$/i.test((e.textContent||'').trim()));
+  if(!heading)return {error:'Sezione Item Details non trovata'};
+  const hr=heading.getBoundingClientRect();
+  const left=hr.left-100,right=hr.right+Math.max(280,hr.width),top=hr.bottom-5,bottom=Math.min(innerHeight,hr.bottom+700);
+  const text=[],seen=new Set(),walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let n,visited=0;
+  while((n=walk.nextNode())&&visited++<18000){
+   const e=n.parentElement;if(!e||!visible(e)||['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','INPUT'].includes(e.tagName))continue;
+   const value=(n.textContent||'').replace(/\\s+/g,' ').trim();if(!value||value.length>100)continue;
+   const r=e.getBoundingClientRect();if(r.left<left||r.left>right||r.top<top||r.top>bottom)continue;
+   const key=value+'@'+Math.round(r.top/8);if(seen.has(key))continue;seen.add(key);
+   text.push(value);if(text.length>=50)break;
+  }
+  const images=[...document.querySelectorAll('img[alt]')].filter(visible).filter(e=>{const r=e.getBoundingClientRect();return r.left>=left&&r.left<=right&&r.top>=top&&r.top<=bottom}).slice(0,12).map(e=>e.alt.slice(0,100)).filter(Boolean);
+  return {text,images,region:'Area Item Details: '+Math.round(left)+'–'+Math.round(right)+' px'};
  }});
- const context=(result?.section||'').slice(0,1100);
- const lines=(result?.snippets||[]).map(x=>x.tag+': '+x.text);
- el('cardContext').textContent='Contesto visibile (diagnostica):\n'+(context||'(sezione Item Details non trovata)')+'\nElementi:\n'+lines.join('\n');
- el('status').textContent='Diagnostica completata. Nome e ID non vengono indovinati: verifica e compila manualmente.';
+ if(result?.error){el('cardContext').textContent=result.error;el('status').textContent='Nessuna scheda riconosciuta';return}
+ const lines=(result?.text||[]).map((s,i)=>(i+1)+'. '+s);
+ el('cardContext').textContent='Testo vicino a Item Details (non identificazione verificata):\\n'+lines.join('\\n')+'\\nImmagini (alt): '+(result?.images||[]).join(' | ');
+ el('status').textContent='Controlla se compare il nome esatto della carta. ID EA sempre da verificare.';
 }catch(e){el('status').textContent='Analisi carta non riuscita: '+e.message}};
