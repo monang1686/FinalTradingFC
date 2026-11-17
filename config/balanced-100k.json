@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "profile": "balanced",
+  "capital_credits": 100000,
+  "ea_sale_fee_percent": 5,
+  "reserve_credits": 10000,
+  "strategies": {
+    "fluctuation": {
+      "capital_limit": 55000,
+      "max_per_card": 12000,
+      "min_net_roi_percent": 6,
+      "min_net_profit": 600,
+      "min_discount_percent": 10,
+      "max_quote_age_minutes": 15,
+      "min_history_observations": 4
+    },
+    "fodder": {
+      "capital_limit": 25000,
+      "max_per_card": 5000,
+      "min_net_roi_percent": 8,
+      "min_net_profit": 400,
+      "min_discount_percent": 8,
+      "max_quote_age_minutes": 60,
+      "min_history_observations": 4,
+      "rating_min": 84,
+      "rating_max": 90
+    },
+    "sniping": {
+      "capital_limit": 10000,
+      "max_per_card": 10000,
+      "min_net_roi_percent": 5,
+      "min_net_profit": 300,
+      "min_discount_percent": 12,
+      "max_quote_age_minutes": 5,
+      "min_history_observations": 4,
+      "manual_only": true
+    }
+  },
+  "watchlist": {
+    "max_cards": 100,
+    "category_targets": {
+      "meta": 35,
+      "promo": 20,
+      "totw": 15,
+      "fodder": 30
+    },
+    "refresh_minutes_desired": {
+      "meta": 5,
+      "promo": 5,
+      "totw": 10,
+      "fodder": 30
+    },
+    "enabled_live_refresh": false
+  },
+  "risk": {
+    "max_open_exposure_credits": 90000,
+    "max_same_card_exposure_credits": 12000,
+    "max_concurrent_positions": 12,
+    "max_unverified_source_exposure_credits": 0,
+    "minimum_cash_reserve_credits": 10000
+  },
+  "development_priorities": [
+    "Validate authorized live console quotes with exact EA version IDs and per-card timestamps",
+    "Collect timestamped history and measured liquidity; never infer sellability from listing prices",
+    "Backtest fluctuation ROI after 5% fee and realistic execution assumptions",
+    "Build dynamic watchlist with source-aware rate budget",
+    "Add fodder/SBC event monitoring and alerts",
+    "Keep sniping as manual alerts; no EA Web App automation"
+  ],
+  "production_signals_enabled": false,
+  "auto_buy_enabled": false,
+  "auto_polling_enabled": false
+}
