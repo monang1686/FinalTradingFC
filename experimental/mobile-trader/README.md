@@ -16,3 +16,18 @@ Il nuovo file `dashboard.html` e' separato da `index.html` e da GitHub Pages su 
 Il file JSON e' letto localmente nel browser; nessuna credenziale o acquisto automatico. I prezzi sono osservazioni non verificate, e il confronto richiede almeno due timestamp distinti. Non ci sono ancora aggiornamenti automatici nella pagina.
 
 Un link HTTPS iPhone permanente, indipendente da `main`, richiede un hosting separato o una configurazione di pubblicazione dedicata. Il workflow non e' schedulato periodicamente.
+
+
+## Cloudflare Pages — sito di anteprima indipendente
+
+Configurare un **nuovo progetto Cloudflare Pages** con repository GitHub `monang1686/FinalTradingFC`. Usare questi valori esatti:
+
+- Framework preset: `None`
+- Production branch **del progetto Cloudflare separato**: `fut-trader-27-test`
+- Build command: `python experimental/mobile-trader/build_pages.py`
+- Build output directory: `experimental/mobile-trader/dist`
+- Root directory: `/` (radice del repository)
+
+La parola 'production' nelle impostazioni Cloudflare indica soltanto il branch che pubblica **quel nuovo progetto Pages**, non il branch `main` di GitHub e non il sito GitHub Pages esistente. Non configurare il nuovo progetto con `main`.
+
+Il builder copia esclusivamente `dashboard.html` come `dist/index.html` e crea intestazioni di sicurezza; non pubblica `prices.json`, le cache o i file di storico. Il sito non ha fetch di rete e non mostra dati live. Per importare uno storico, aprire l'URL Cloudflare in Safari e scegliere il file JSON tramite il selettore. Per dati automatici occorre una fase separata di distribuzione controllata, dopo la verifica di provenienza e diritti d'uso della fonte.
