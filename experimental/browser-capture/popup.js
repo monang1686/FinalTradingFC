@@ -36,3 +36,22 @@ el('selected').textContent=detectedListings.length?detectedListings.map((item,in
 el('status').textContent=detectedListings.length+' inserzioni leggibili. Seleziona la carta corretta; nome e ID EA vanno verificati manualmente.';
 }catch(e){el('status').textContent='Lettura non riuscita: '+e.message}};
 el('useListing').onclick=()=>{const index=el('listings').value;if(index===''||!detectedListings[Number(index)]){el('status').textContent='Seleziona prima una inserzione';return}el('buy').value=detectedListings[Number(index)].price;el('status').textContent='Prezzo trasferito. Verifica identità della carta e riferimento storico.'};
+
+el('inspectCard').onclick=async()=>{try{
+ const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
+ if(!tab?.id||!tab.url?.startsWith('https://'))throw Error('Apri una pagina HTTPS');
+ pageUrl=tab.url;
+ const [{result}]=await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>{
+  const visible=e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight};
+  const blocks=[...document.querySelectorAll('h1,h2,h3,h4,[class*="player-name"],[class*="item-name"],[class*="rating"],[class*="position"],[class*="item-details"],[class*="itemDetails"]')].filter(visible).slice(0,80).map(e=>({tag:e.tagName,text:(e.innerText||e.textContent||'').replace(/\s+/g,' ').trim().slice(0,120)})).filter(e=>e.text);
+  const body=(document.body.innerText||'').slice(-18000);
+  const marker=body.lastIndexOf('Item Details');
+  const section=marker>=0?body.slice(marker,marker+1100):'';
+  const snippets=blocks.slice(0,25);
+  return {section,snippets};
+ }});
+ const context=(result?.section||'').slice(0,1100);
+ const lines=(result?.snippets||[]).map(x=>x.tag+': '+x.text);
+ el('cardContext').textContent='Contesto visibile (diagnostica):\n'+(context||'(sezione Item Details non trovata)')+'\nElementi:\n'+lines.join('\n');
+ el('status').textContent='Diagnostica completata. Nome e ID non vengono indovinati: verifica e compila manualmente.';
+}catch(e){el('status').textContent='Analisi carta non riuscita: '+e.message}};
