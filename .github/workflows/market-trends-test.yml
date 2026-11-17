@@ -22,6 +22,9 @@ jobs:
       - name: Val Town public FC27 feed diagnostic (read-only, non-blocking)
         continue-on-error: true
         run: python experimental/mobile-trader/valtown_source_probe.py
+      - name: Collect isolated experimental snapshot (no production publishing)
+        continue-on-error: true
+        run: python experimental/mobile-trader/valtown_snapshot.py work/valtown-experimental.json
       - name: Offline source permission audit (no external requests)
         run: python audit_market_sources.py
       - run: mkdir -p work
@@ -33,6 +36,7 @@ jobs:
           path: |
             results.json
             work/scanner-synthetic.json
+            work/valtown-experimental.json
 # No schedule/write permission until a production source is verified.
 # GitHub scheduled workflows run only from the default branch: do not move this
 # to main. Future isolated collection requires an approved external dispatcher
