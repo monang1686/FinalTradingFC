@@ -44,8 +44,9 @@ function clear(){
   report=null;file.value='';root.replaceChildren();document.getElementById('count').textContent='—';document.getElementById('candidate-count').textContent='—';statusEl.textContent='Nessun report caricato.';
 }
 file.addEventListener('change',async()=>{
-  clear();
-  try{const f=file.files[0];if(!f)return;if(f.size>2000000)throw Error('Massimo 2 MB');accept(JSON.parse(await f.text()));}
+  const selected=file.files[0];
+  report=null;root.replaceChildren();
+  try{const f=selected;if(!f)return;if(f.size>2000000)throw Error('Massimo 2 MB');accept(JSON.parse(await f.text()));}
   catch(e){clear();statusEl.textContent='Errore: '+e.message;}
 });
 filter.addEventListener('change',render);sort.addEventListener('change',render);
