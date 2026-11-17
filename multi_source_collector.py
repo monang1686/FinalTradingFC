@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from market_sources import collect, authorize, SourceBlocked
 from market_engine import stamp
+import json
+from pathlib import Path
 
 def collect_many(sources, *, transport=None, max_workers=3):
     if not isinstance(sources,list):
@@ -86,3 +88,16 @@ def reconcile_quotes(observations, *, max_age_seconds=3600):
                     'actionable':False})
     return {'references':sorted(out,key=lambda x:x['ea_id']),
             'rejected':rejected,'actionable':False}
+
+
+def offline_config_report(path='config/market-sources.json'):
+    """Read provider configuration without issuing requests or activating sources."""
+    config=json.loads(Path(path).read_text(encoding='utf-8'))
+    sources=config.get('sources',[])
+    if not isinstance(sources,list):
+        raise ValueError('sources must be an array')
+    report=collect_many(sources,transport=lambda _: (_ for _ in ()).throw(RuntimeError('network disabled in offline report')))
+    return {'configured':len(sources),'authorized':len(sources)-sum(v['status']=='blocked' for v in report['failures'].values()),'blocked':report['failures'],'live_collection':False}
+
+if __name__=='__main__':
+    print(json.dumps(offline_config_report(),indent=2,ensure_ascii=False))
