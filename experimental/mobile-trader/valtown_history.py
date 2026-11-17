@@ -2,7 +2,15 @@
 import json
 import sys
 from pathlib import Path
-from valtown_compare import compare, index, timestamp
+import importlib.util
+
+# Load the sibling experimental comparator explicitly: the repository also
+# contains a different root-level module named valtown_compare.py.
+_comparator_path = Path(__file__).resolve().with_name('valtown_compare.py')
+_spec = importlib.util.spec_from_file_location('fut27_experimental_valtown_compare', _comparator_path)
+_comparator = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_comparator)
+compare, index, timestamp = _comparator.compare, _comparator.index, _comparator.timestamp
 
 LIMIT = 336
 
