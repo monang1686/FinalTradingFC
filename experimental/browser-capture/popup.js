@@ -69,3 +69,13 @@ el('inspectCard').onclick=async()=>{try{
  el('cardContext').textContent='Testo vicino a Item Details (non identificazione verificata):\\n'+lines.join('\\n')+'\\nImmagini (alt): '+(result?.images||[]).join(' | ');
 
 }catch(e){el('status').textContent='Analisi carta non riuscita: '+e.message}};
+
+el('captureAll').onclick=async()=>{const button=el('captureAll');button.disabled=true;try{
+ el('name').value='';el('buy').value='';el('target').value='';el('id').value='';
+ await el('inspectCard').onclick();
+ const name=el('name').value.trim();
+ await el('scan').onclick();
+ const when=new Date().toISOString();el('captureTime').textContent='Lettura locale: '+new Date(when).toLocaleString('it-IT');
+ if(detectedListings.length===1){el('listings').value='0';el('buy').value=detectedListings[0].price;}
+ el('status').textContent=name?(detectedListings.length===1?'Nome e prezzo proposti: verifica la carta e ID versione prima di esportare.':'Nome proposto; seleziona manualmente una delle '+detectedListings.length+' inserzioni.'): 'Nome non identificato. Controlla diagnostica e seleziona il prezzo manualmente.';
+}catch(e){el('status').textContent='Acquisizione incompleta: '+e.message}finally{button.disabled=false}};
