@@ -1,0 +1,32 @@
+name: Quick FUT Price one-shot diagnostic (test only)
+on:
+  push:
+    branches: [fut-trader-27-test]
+    paths:
+      - '.github/workflows/quick-fut-price-probe.yml'
+      - 'experimental/mobile-trader/quick_fut_price_bridge.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install quick-fut-price from public source
+        run: python -m pip install 'git+https://github.com/WilgotM/quick-fut-price.git'
+      - name: One-shot FUTBIN FC27 price probe
+        run: |
+          python experimental/mobile-trader/quick_fut_price_bridge.py --ids 8 --output /tmp/fut27-probe.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/fut27-probe.json'))
+          print('Source:', d['format'])
+          print('Valid price observations:', len(d['data']['items']))
+          print('Live data verified:', bool(d['data']['items']))
+          print('No publishing, scheduling or production signals enabled.')
+          PY
