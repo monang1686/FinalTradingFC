@@ -7,11 +7,37 @@ import json
 import os
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from email.utils import parsedate_to_datetime
+from datetime import datetime, timezone
 from card_catalog import build_catalog, enrich_market
 
 BASE="https://api.fut-db.com"
 PROVENANCE="https://api.fut-db.com/api/doc/index.html"
 FREE_PATHS={"players","clubs","leagues","nations","rarities"}
+
+class FutDBRateLimitError(RuntimeError):
+    """Safe rate-limit signal; retry_after_seconds may be unavailable."""
+    def __init__(self, retry_after_seconds=None):
+        super().__init__("FUT-DB request limit reached")
+        self.retry_after_seconds = retry_after_seconds
+
+def parse_retry_after(value, *, now=None):
+    """Accept bounded Retry-After seconds or HTTP date; never guess a reset."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    value = value.strip()
+    if value.isascii() and value.isdigit():
+        seconds = int(value)
+        return seconds if seconds <= 86400 * 7 else None
+    try:
+        target = parsedate_to_datetime(value)
+        if target.tzinfo is None:
+            return None
+        current = now or datetime.now(timezone.utc)
+        seconds = max(0, int((target - current).total_seconds()))
+        return seconds if seconds <= 86400 * 7 else None
+    except (TypeError, ValueError, OverflowError):
+        return None
 
 def request_page(kind, page=1, *, key=None, transport=None):
     if kind not in FREE_PATHS or type(page) is not int or page<1 or page>1000:
@@ -35,7 +61,7 @@ def request_page(kind, page=1, *, key=None, transport=None):
         if exc.code in (401,403):
             raise PermissionError("FUT-DB key rejected or free tier not entitled") from None
         if exc.code==429:
-            raise RuntimeError("FUT-DB request limit reached") from None
+            raise FutDBRateLimitError(parse_retry_after(exc.headers.get("Retry-After") if exc.headers else None)) from None
         raise
     if not isinstance(payload,dict) or not isinstance(payload.get("items"),list):
         raise ValueError("unexpected FUT-DB items schema")
