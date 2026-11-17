@@ -62,6 +62,9 @@ def reconcile_quotes(observations, *, max_age_seconds=3600):
             if not isinstance(o,dict):
                 raise ValueError('invalid observation')
             sid=o['source_id'];ea=o['ea_id'];platform=o['platform']
+            family=o.get('origin_family',sid)
+            if not isinstance(family,str) or not family:
+                raise ValueError('invalid origin family')
             p=o['price'];at=stamp(o['observed_at'])
             if not isinstance(sid,str) or not sid or type(ea) is not int or ea<=0:
                 raise ValueError('invalid identity')
@@ -69,12 +72,13 @@ def reconcile_quotes(observations, *, max_age_seconds=3600):
                 raise ValueError('invalid market or price')
             if not 0 <= (now-at).total_seconds() <= max_age_seconds:
                 raise ValueError('stale observation')
-            grouped.setdefault(ea,{}).setdefault(sid,[]).append(p)
+            grouped.setdefault(ea,{}).setdefault(family,[]).append(p)
         except (ValueError,KeyError,TypeError,OverflowError) as exc:
             rejected.append({'index':index,'reason':str(exc)})
     out=[]
     for ea,by_source in grouped.items():
-        # Multiple quotes from the same provider do not count as independent votes.
+        # Clones of the same upstream count as one origin family, not independent votes.
+        # Multiple quotes from one origin are rejected, even with different hostnames.
         if any(len(values)!=1 for values in by_source.values()):
             rejected.append({'ea_id':ea,'reason':'duplicate source quote'})
             continue
