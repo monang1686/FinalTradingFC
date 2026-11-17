@@ -19,10 +19,6 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
-      - name: One-time FUT-DB free metadata connection diagnostic
-        env:
-          FUTDB_API_KEY: ${{ secrets.FUTDB_API_KEY }}
-        run: python futdb_connection_check.py
       - name: Offline source permission audit (no external requests)
         run: python audit_market_sources.py
       - run: mkdir -p work
