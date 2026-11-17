@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from market_engine import report, price, stamp
 from market_sources import authorize
+from metadata_fusion import enrich_rows
 
 WEIGHTS = {'source_unverified':40,'stale_quote':35,'future_quote':50,
            'liquidity_unknown':20,'low_liquidity':20,'insufficient_history':20,
@@ -19,7 +20,7 @@ def risk(flags):
     return {'score':score,'level':'high' if score>=60 else 'medium' if score>=25 else 'low',
             'factors':factors,'method':'heuristic_severity_not_loss_probability'}
 
-def scan(data, source=None, now=None, min_profit=800, min_roi=5):
+def scan(data, source=None, now=None, min_profit=800, min_roi=5, metadata_catalog=None):
     now=now or datetime.now(timezone.utc)
     kind=data.get('data_kind','unverified')
     simulated=kind=='synthetic'
@@ -93,6 +94,14 @@ def scan(data, source=None, now=None, min_profit=800, min_roi=5):
             output['candidates'].append(copy.deepcopy(row))
             if allowed: output['production_signals'].append(copy.deepcopy(row))
     output['candidates'].sort(key=lambda r:(r['risk']['score'],-r['net_roi_percent']))
+    if metadata_catalog is not None:
+        output=enrich_rows(output,metadata_catalog)
+        # Candidates receive only matching metadata; never alter trading eligibility.
+        by_id={row['id']:row for row in output['rows']}
+        for candidate in output['candidates']:
+            enriched=by_id[candidate['id']]
+            for field in ('metadata','metadata_field_sources','metadata_conflicts'):
+                candidate[field]=copy.deepcopy(enriched[field])
     return output
 
 def demo(now=None):
