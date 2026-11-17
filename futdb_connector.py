@@ -53,7 +53,10 @@ def normalize_players(payload):
     for p in payload["items"]:
         if not isinstance(p,dict) or type(p.get("id")) is not int or p["id"]<=0:
             raise ValueError("invalid FUT-DB card-version ID")
-        # Only map when FUT-DB id and EA resourceId explicitly agree.\n        # Different IDs require a reviewed mapping; never guess or join by base ID.\n        if type(p.get("resourceId")) is not int or p["resourceId"]!=p["id"]:\n            continue
+        # Only map when FUT-DB id and EA resourceId explicitly agree.
+        # Different IDs require a reviewed mapping; never guess or join by base ID.
+        if type(p.get("resourceId")) is not int or p["resourceId"]!=p["id"]:
+            continue
         name=p.get("commonName") or p.get("name")
         if not name:
             parts=[p.get("firstName"),p.get("lastName")]
