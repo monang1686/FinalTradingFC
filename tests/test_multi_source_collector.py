@@ -39,6 +39,13 @@ class CollectorTests(unittest.TestCase):
     def test_duplicate_source_no_false_consensus(self):
         obs=[{'source_id':'a','ea_id':123,'platform':'console','price':10000,'observed_at':NOW.isoformat()}]*2
         self.assertEqual(len(reconcile_quotes(obs)['references']),0)
+    def test_cloned_feeds_not_independent(self):
+        obs=[{'source_id':sid,'origin_family':'bowli-fut-market','ea_id':123,
+              'platform':'console','price':p,'observed_at':NOW.isoformat()}
+             for sid,p in [('valtown-a',10000),('valtown-b',10200)]]
+        r=reconcile_quotes(obs)
+        self.assertEqual(len(r['references']),0)
+        self.assertTrue(any(x['reason']=='duplicate source quote' for x in r['rejected']))
     def test_stale_rejected(self):
         obs=[{'source_id':'a','ea_id':123,'platform':'console','price':10000,'observed_at':(NOW-timedelta(days=1)).isoformat()}]
         self.assertEqual(len(reconcile_quotes(obs)['references']),0)
