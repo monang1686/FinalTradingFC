@@ -28,6 +28,15 @@ function render(){
     const risk=node('div','','riskline');risk.append(node('span','Rischio indicativo'),node('strong',number(r.risk?.score)+'/100 · '+(riskName[r.risk?.level]||'n.d.')));card.append(risk);
     const meter=node('div','','meter'),fill=node('i','');fill.style.width=Math.max(0,Math.min(100,Number(r.risk?.score)||0))+'%';meter.append(fill);card.append(meter);
     const details=node('details','','details');details.append(node('summary','Dettagli e limiti'));
+    if(r.metadata&&typeof r.metadata==='object'){
+      const labels={name:'Nome',rating:'Overall',position:'Ruolo',club:'Club',league:'Campionato',nation:'Nazionalità',rarity:'Rarità'};
+      const parts=Object.entries(labels).filter(([key])=>r.metadata[key]!==undefined).map(([key,label])=>label+': '+r.metadata[key]);
+      if(parts.length)details.append(node('p','Anagrafica: '+parts.join(' · ')));
+      const origins=r.metadata_field_sources||{};
+      const provenance=Object.entries(origins).map(([field,sources])=>field+': '+(Array.isArray(sources)?sources.join(', '):'n.d.'));
+      if(provenance.length)details.append(node('p','Provenienza metadati: '+provenance.join(' · ')));
+    }
+    if(r.metadata_conflicts&&Object.keys(r.metadata_conflicts).length)details.append(node('p','Campi discordanti esclusi: '+Object.keys(r.metadata_conflicts).join(', ')));
     details.append(node('p','Fonte: '+r.source_id+' · Data: '+(r.source_id==='synthetic-static-demo'?'fissa, solo per la demo':r.timestamp||'n.d.')));
     details.append(node('p','Indicatori: '+(r.risk_flags||[]).map(f=>flagName[f]||f).join(', ')));
     details.append(node('p',r.warning||'Nessun dato di mercato verificato.'));
