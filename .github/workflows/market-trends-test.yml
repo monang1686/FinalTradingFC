@@ -19,8 +19,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
-      - name: One-shot public endpoint reachability (no price storage)
-        run: python probe_public_feed.py
+      - name: Offline source permission audit (no external requests)
+        run: python audit_market_sources.py
       - run: mkdir -p work
       - run: python experimental_scanner.py --demo > work/scanner-synthetic.json
       - run: python market-trends.py prices.json > results.json
