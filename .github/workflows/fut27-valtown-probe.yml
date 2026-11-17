@@ -1,0 +1,13 @@
+name: FUT Trader 27 - Val Town source diagnostic (test only)
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probe public FC27 PS prices (read only)
+        run: python experimental/mobile-trader/valtown_source_probe.py
