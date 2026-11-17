@@ -58,6 +58,7 @@ jobs:
             work/valtown-experimental.json
             work/valtown-history.json
             work/valtown-comparison.json
+            experimental/mobile-trader/dashboard.html
 # No schedule/write permission until a production source is verified.
 # GitHub scheduled workflows run only from the default branch: do not move this
 # to main. Future isolated collection requires an approved external dispatcher
