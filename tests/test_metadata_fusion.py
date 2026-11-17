@@ -21,7 +21,7 @@ class MetadataFusionTests(unittest.TestCase):
         a=self.catalog([{"ea_id":123,"rating":88}],"licensed-a")
         b=self.catalog([{"ea_id":123,"rating":90}],"licensed-b")
         result=enrich_rows({"rows":[{"id":"123","price":1000}]},merge_catalogs([a,b]))
-        self.assertNotIn("rating",result["rows"][0]["metadata"])
+        self.assertIsNone(result["rows"][0]["metadata"])
         self.assertEqual(result["rows"][0]["metadata_conflicts"]["rating"],["licensed-a","licensed-b"])
     def test_reject_unlicensed(self):
         with self.assertRaises(PermissionError):
