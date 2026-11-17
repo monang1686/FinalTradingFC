@@ -31,7 +31,33 @@
       "risk_flags": [
         "synthetic_test_data"
       ],
-      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale.",
+      "metadata": {
+        "name": "CARTA TEST A",
+        "rating": 88,
+        "position": "ST",
+        "club": "CLUB TEST 1",
+        "rarity": "TEST SPECIAL"
+      },
+      "metadata_field_sources": {
+        "name": [
+          "fixture-demo-catalog-a"
+        ],
+        "rating": [
+          "fixture-demo-catalog-a",
+          "fixture-demo-catalog-b"
+        ],
+        "position": [
+          "fixture-demo-catalog-a"
+        ],
+        "club": [
+          "fixture-demo-catalog-b"
+        ],
+        "rarity": [
+          "fixture-demo-catalog-b"
+        ]
+      },
+      "metadata_conflicts": {}
     },
     {
       "id": "900000002",
@@ -59,7 +85,29 @@
         "synthetic_test_data",
         "stale_quote"
       ],
-      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale.",
+      "metadata": {
+        "name": "CARTA TEST B",
+        "position": "CM",
+        "club": "CLUB TEST 2"
+      },
+      "metadata_field_sources": {
+        "name": [
+          "fixture-demo-catalog-a"
+        ],
+        "position": [
+          "fixture-demo-catalog-a"
+        ],
+        "club": [
+          "fixture-demo-catalog-b"
+        ]
+      },
+      "metadata_conflicts": {
+        "rating": [
+          "fixture-demo-catalog-a",
+          "fixture-demo-catalog-b"
+        ]
+      }
     },
     {
       "id": "900000003",
@@ -87,7 +135,10 @@
         "synthetic_test_data",
         "liquidity_unknown"
       ],
-      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale.",
+      "metadata": null,
+      "metadata_field_sources": {},
+      "metadata_conflicts": {}
     }
   ],
   "candidates": [
@@ -116,8 +167,39 @@
       "risk_flags": [
         "synthetic_test_data"
       ],
-      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale."
+      "warning": "Dati inventati per test interfaccia; nessuna opportunità reale.",
+      "metadata": {
+        "name": "CARTA TEST A",
+        "rating": 88,
+        "position": "ST",
+        "club": "CLUB TEST 1",
+        "rarity": "TEST SPECIAL"
+      },
+      "metadata_field_sources": {
+        "name": [
+          "fixture-demo-catalog-a"
+        ],
+        "rating": [
+          "fixture-demo-catalog-a",
+          "fixture-demo-catalog-b"
+        ],
+        "position": [
+          "fixture-demo-catalog-a"
+        ],
+        "club": [
+          "fixture-demo-catalog-b"
+        ],
+        "rarity": [
+          "fixture-demo-catalog-b"
+        ]
+      },
+      "metadata_conflicts": {}
     }
   ],
-  "production_signals": []
+  "production_signals": [],
+  "metadata_coverage": {
+    "matched": 2,
+    "total": 3
+  },
+  "demo_notice": "Cataloghi, prezzi e segnali esclusivamente sintetici."
 }
