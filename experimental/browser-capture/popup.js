@@ -60,7 +60,12 @@ el('inspectCard').onclick=async()=>{try{
   return {text,images,region:'Area Item Details: '+Math.round(left)+'–'+Math.round(right)+' px'};
  }});
  if(result?.error){el('cardContext').textContent=result.error;el('status').textContent='Nessuna scheda riconosciuta';return}
+ const tokens=result?.text||[];
+ const idx=tokens.findIndex((t,i)=>i+2<tokens.length&&/^[0-9]{2}$/.test(tokens[i+1])&&/^(GK|RB|RWB|CB|LB|LWB|CDM|CM|CAM|RM|LM|RW|LW|ST|CF)$/i.test(tokens[i+2])&&/^[^0-9]{2,55}$/.test(t)&&!['Next','Item Details','Search Results'].includes(t));
+ const proposed=idx>=0?tokens[idx]:'';
+ if(proposed){el('name').value=proposed;el('status').textContent='Nome proposto: '+proposed+'. Verifica sulla carta prima di esportare; ID EA non disponibile.'}
+ else el('status').textContent='Nome non riconosciuto con certezza. Compilalo manualmente.';
  const lines=(result?.text||[]).map((s,i)=>(i+1)+'. '+s);
  el('cardContext').textContent='Testo vicino a Item Details (non identificazione verificata):\\n'+lines.join('\\n')+'\\nImmagini (alt): '+(result?.images||[]).join(' | ');
- el('status').textContent='Controlla se compare il nome esatto della carta. ID EA sempre da verificare.';
+
 }catch(e){el('status').textContent='Analisi carta non riuscita: '+e.message}};
