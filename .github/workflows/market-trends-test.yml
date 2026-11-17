@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: fut27-experimental-history-test
+  cancel-in-progress: false
 jobs:
   market-trends:
     if: github.ref == 'refs/heads/fut-trader-27-test'
@@ -22,9 +25,25 @@ jobs:
       - name: Val Town public FC27 feed diagnostic (read-only, non-blocking)
         continue-on-error: true
         run: python experimental/mobile-trader/valtown_source_probe.py
+      - name: Restore experimental snapshot history
+        uses: actions/cache/restore@v4
+        with:
+          path: work/valtown-history.json
+          key: fut27-history-test-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            fut27-history-test-
       - name: Collect isolated experimental snapshot (no production publishing)
         continue-on-error: true
         run: python experimental/mobile-trader/valtown_snapshot.py work/valtown-experimental.json
+      - name: Append experimental snapshot and compare with prior observation
+        continue-on-error: true
+        run: python experimental/mobile-trader/valtown_history.py work/valtown-history.json work/valtown-experimental.json work/valtown-comparison.json
+      - name: Cache experimental history (test branch only)
+        if: hashFiles('work/valtown-history.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: work/valtown-history.json
+          key: fut27-history-test-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Offline source permission audit (no external requests)
         run: python audit_market_sources.py
       - run: mkdir -p work
@@ -37,6 +56,8 @@ jobs:
             results.json
             work/scanner-synthetic.json
             work/valtown-experimental.json
+            work/valtown-history.json
+            work/valtown-comparison.json
 # No schedule/write permission until a production source is verified.
 # GitHub scheduled workflows run only from the default branch: do not move this
 # to main. Future isolated collection requires an approved external dispatcher
