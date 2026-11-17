@@ -20,7 +20,6 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
       - name: One-time FUT-DB free metadata connection diagnostic
-        if: github.event_name == 'push' && github.event.head_commit.message == 'test: one-time FUT-DB free API connection'
         env:
           FUTDB_API_KEY: ${{ secrets.FUTDB_API_KEY }}
         run: python futdb_connection_check.py
