@@ -20,7 +20,6 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
       - name: FUT-DB one-shot diagnostic (no data saved)
-        if: github.event_name == 'push' && github.event.head_commit.message == 'test: FUT-DB single free API diagnostic'
         env:
           FUTDB_API_KEY: ${{ secrets.FUTDB_API_KEY }}
         run: python futdb_connection_check.py
