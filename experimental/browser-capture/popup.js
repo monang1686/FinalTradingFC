@@ -79,3 +79,19 @@ el('captureAll').onclick=async()=>{const button=el('captureAll');button.disabled
  if(detectedListings.length===1){el('listings').value='0';el('buy').value=detectedListings[0].price;}
  el('status').textContent=name?(detectedListings.length===1?'Nome e prezzo proposti: verifica la carta e ID versione prima di esportare.':'Nome proposto; seleziona manualmente una delle '+detectedListings.length+' inserzioni.'): 'Nome non identificato. Controlla diagnostica e seleziona il prezzo manualmente.';
 }catch(e){el('status').textContent='Acquisizione incompleta: '+e.message}finally{button.disabled=false}};
+
+const historyKey='fut27_local_observations_v1';
+el('openHistory').onclick=()=>chrome.tabs.create({url:chrome.runtime.getURL('history.html')});
+el('saveLocal').onclick=async()=>{try{
+ const id=el('id').value.trim(),name=el('name').value.trim(),price=Number(el('buy').value);
+ if(!/^[1-9][0-9]*$/.test(id)){el('status').textContent='Inserisci ID EA della versione verificato: non salvo carte ambigue.';return}
+ if(!name||name.length>80||!Number.isSafeInteger(price)||price<1||price>15000000||!pageUrl){el('status').textContent='Nome, prezzo e pagina di origine obbligatori.';return}
+ const selected=detectedListings[Number(el('listings').value)];
+ if(!selected||selected.price!==price){el('status').textContent='Prima acquisisci e seleziona una inserzione visibile corrispondente al prezzo.';return}
+ const record={ea_version_id:id,name,price,platform:'ps',strategy:el('strategy').value,source_url:pageUrl,observed_at:new Date().toISOString(),kind:'visible_listing_ask',verification:'manual_ea_version_id'};
+ const stored=await chrome.storage.local.get(historyKey),items=Array.isArray(stored[historyKey])?stored[historyKey]:[];
+ if(items.length>=5000){el('status').textContent='Archivio pieno (5000). Esporta e libera spazio dalla pagina Storico.';return}
+ if(items.some(x=>x.ea_version_id===id&&x.price===price&&Date.parse(record.observed_at)-Date.parse(x.observed_at)<60000)){el('status').textContent='Inserzione con stesso ID e prezzo già registrata nell’ultimo minuto.';return}
+ items.push(record);await chrome.storage.local.set({[historyKey]:items});
+ el('status').textContent='Salvata quotazione locale n. '+items.length+'. È un prezzo richiesto, non una vendita confermata.';
+}catch(e){el('status').textContent='Salvataggio non riuscito: '+e.message}};
