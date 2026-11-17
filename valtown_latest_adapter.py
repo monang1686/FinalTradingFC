@@ -41,10 +41,11 @@ def parse_latest(payload, *, now=None, max_age_seconds=5400):
             seen.add(ident)
             rows.append({"id":str(ident),"name":card.get("name") if isinstance(card.get("name"),str) else None,
                          "rating":card.get("rating") if type(card.get("rating")) is int and 1<=card["rating"]<=99 else None,
-                         "group":group,"price":price,"platform":"playstation",
-                         "observed_at":at.isoformat(),"age_seconds":age,
-                         "stale":age>max_age_seconds,"actionable":False})
+                         "group":group,"price":price,"platform":"playstation_claimed",
+                         "feed_updated_at":at.isoformat(),"per_card_observed_at":None,"age_seconds":age,
+                         "stale":age>max_age_seconds,"actionable":False,"price_verified":False})
     return {"source_id":"val-town-bowli","data_kind":"unverified_price_preview",
             "authorized":False,"source_updated":at.isoformat(),"age_seconds":age,
             "stale":age>max_age_seconds,"rows":rows,"count":len(rows),
+            "per_card_timestamp_verified":False,"price_reuse_permission_verified":False,
             "production_signals":[],"automatic_polling_enabled":False}
