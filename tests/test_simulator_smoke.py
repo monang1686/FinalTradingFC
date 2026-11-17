@@ -12,13 +12,15 @@ class SimulatorSmokeTests(unittest.TestCase):
         html=PAGE.read_text(encoding='utf-8')
         for element in ('capital','start','buy','sell','cash','profit','inventory','completed',
                         'wins','avg-roi','fees','holding-time','holdings','history','message',
-                        'plan-buy','plan-profit','break-even','target-price','target-profit','target-roi'):
+                        'plan-buy','plan-profit','tick-mode','break-even','target-price','target-profit','target-roi'):
             self.assertIn('id="'+element+'"',html)
         self.assertIn('SOLO SIMULAZIONE',html)
         self.assertIn('Math.floor(x.value*95/100)',html)
         self.assertIn('trades.push',html)
         self.assertIn('function minSellPrice',html)
         self.assertIn('Math.floor(mid*95/100)',html)
+        self.assertIn('function nextExamplePrice',html)
+        self.assertIn('NON verificati per FC 27',html)
 
     @unittest.skipUnless(shutil.which('node'),'Node.js unavailable')
     def test_inline_javascript_syntax(self):
