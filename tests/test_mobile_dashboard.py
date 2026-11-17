@@ -24,6 +24,13 @@ class MobileDashboardTests(unittest.TestCase):
         self.assertIn("c.price-p.price", self.html)
         self.assertIn("arr[i-1].updated_at", self.html)
 
+    def test_opt_in_polling_keeps_unverified_guardrails(self):
+        self.assertIn("id=\"refresh\"", self.html)
+        self.assertIn("credentials:'omit'", self.html)
+        self.assertIn("mode:'cors'", self.html)
+        self.assertIn("30*60*1000", self.html)
+        self.assertIn("return valid({schema:'fut27-experimental-feed-v1'", self.html)
+
     def test_cloudflare_build_is_isolated(self):
         builder = Path("experimental/mobile-trader/build_pages.py").read_text(encoding="utf-8")
         self.assertIn('ROOT / "dashboard.html"', builder)
