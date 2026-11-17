@@ -2,7 +2,7 @@
 import json
 import os
 from urllib.error import HTTPError, URLError
-from futdb_connector import request_page
+from futdb_connector import request_page, FutDBRateLimitError
 
 def classify_error(error):
     if isinstance(error, PermissionError):
@@ -32,7 +32,10 @@ def main():
     try:
         page = request_page("players", page=1)
     except Exception as error:
-        print(json.dumps({"status": classify_error(error)}))
+        result = {"status": classify_error(error)}
+        if isinstance(error, FutDBRateLimitError) and error.retry_after_seconds is not None:
+            result["retry_after_seconds"] = error.retry_after_seconds
+        print(json.dumps(result))
         return 3
     items = page["items"]
     keys = ("id", "resourceId", "baseId", "playerId")
