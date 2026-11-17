@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.path.insert(0, 'experimental/mobile-trader')
 from importlib.machinery import SourceFileLoader
 mod = SourceFileLoader("history", "experimental/mobile-trader/valtown_history.py").load_module()
 def snap(time, price):
