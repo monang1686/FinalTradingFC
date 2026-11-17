@@ -2,7 +2,7 @@
   "sources": [
     {
       "id": "val-town-fc27",
-      "connector": "public_json",
+      "connector": "valtown_json",
       "endpoint": "https://fc27-market.val.run/latest",
       "enabled": false,
       "verified": false,
@@ -19,7 +19,7 @@
     },
     {
       "id": "val-town-olliedh",
-      "connector": "public_json",
+      "connector": "valtown_json",
       "endpoint": "https://olliedh--01a19fdd28e9721bb9d430c17f84fa3d.web.val.run/latest",
       "enabled": false,
       "verified": false,
@@ -36,7 +36,7 @@
     },
     {
       "id": "val-town-tyler82800",
-      "connector": "public_json",
+      "connector": "valtown_json",
       "endpoint": "https://tyler82800-fut-market-api.web.val.run/latest",
       "enabled": false,
       "verified": false,
