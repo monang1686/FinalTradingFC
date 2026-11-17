@@ -1,0 +1,22 @@
+name: FUT-DB Free API Connection Check
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-free-api:
+    if: github.ref == 'refs/heads/fut-trader-27-test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fut-trader-27-test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify one free player metadata page
+        env:
+          FUTDB_API_KEY: ${{ secrets.FUTDB_API_KEY }}
+        run: python futdb_connection_check.py
+# Manual only. Never schedule; never store API responses.
